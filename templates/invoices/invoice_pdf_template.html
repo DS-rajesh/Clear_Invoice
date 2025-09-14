@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #1E90FF;
+            padding-bottom: 20px;
+        }
+        .logo-section {
+            flex: 1;
+        }
+        .company-logo {
+            max-height: 80px;
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        .company-info {
+            font-size: 14px;
+            color: #666;
+        }
+        .invoice-title {
+            flex: 1;
+            text-align: right;
+        }
+        .invoice-title h1 {
+            font-size: 36px;
+            color: #1E90FF;
+            margin: 0;
+            font-weight: bold;
+        }
+        .invoice-number {
+            font-size: 18px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .bill-to, .invoice-info {
+            flex: 1;
+        }
+        .bill-to {
+            margin-right: 40px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1E90FF;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .client-info {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .invoice-meta {
+            font-size: 14px;
+        }
+        .invoice-meta div {
+            margin-bottom: 8px;
+        }
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .items-table th {
+            background-color: #1E90FF;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .items-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .totals {
+            float: right;
+            width: 300px;
+            margin-top: 20px;
+        }
+        .totals table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .totals td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .totals .total-row {
+            font-weight: bold;
+            font-size: 16px;
+            background-color: #1E90FF;
+            color: white;
+        }
+        .notes {
+            clear: both;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .notes h3 {
+            color: #1E90FF;
+            margin-bottom: 10px;
+        }
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .signature-box {
+            width: 200px;
+            text-align: center;
+        }
+        .signature-image {
+            max-height: 60px;
+            max-width: 180px;
+            margin-bottom: 10px;
+        }
+        .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-unpaid {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-draft {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo and Invoice Title -->
+    <div class="header">
+        <div class="logo-section">
+            {% if user.logo %}
+                <img src="{{ user.logo.path }}" alt="{{ user.company|default:user.get_full_name }} Logo" class="company-logo">
+            {% endif %}
+            <div class="company-info">
+                <strong>{{ user.company|default:user.get_full_name }}</strong><br>
+                {% if user.address %}{{ user.address|linebreaks }}{% endif %}
+                {% if user.phone %}Phone: {{ user.phone }}<br>{% endif %}
+                Email: {{ user.email }}
+            </div>
+        </div>
+        <div class="invoice-title">
+            <h1>INVOICE</h1>
+            <div class="invoice-number"># {{ invoice.invoice_number }}</div>
+            <span class="status-badge {% if invoice.status == 'paid' %}status-paid{% elif invoice.status == 'unpaid' %}status-unpaid{% elif invoice.status == 'overdue' or invoice.is_overdue %}status-overdue{% else %}status-draft{% endif %}">
+                {% if invoice.is_overdue %}Overdue{% else %}{{ invoice.get_status_display }}{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Invoice Details -->
+    <div class="invoice-details">
+        <div class="bill-to">
+            <div class="section-title">Bill To</div>
+            <div class="client-info">
+                <strong>{{ invoice.client.name }}</strong><br>
+                {% if invoice.client.company %}{{ invoice.client.company }}<br>{% endif %}
+                {% if invoice.client.address %}{{ invoice.client.address|linebreaks }}{% endif %}
+                {% if invoice.client.phone %}Phone: {{ invoice.client.phone }}<br>{% endif %}
+                Email: {{ invoice.client.email }}
+            </div>
+        </div>
+        <div class="invoice-info">
+            <div class="section-title">Invoice Details</div>
+            <div class="invoice-meta">
+                <div><span class="label">Date Issued:</span> {{ invoice.date_issued|date:"F d, Y" }}</div>
+                <div><span class="label">Due Date:</span> {{ invoice.due_date|date:"F d, Y" }}</div>
+                {% if invoice.payment_terms %}
+                <div><span class="label">Terms:</span> {{ invoice.payment_terms }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-right">Rate</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+                <td>
+                    <strong>{{ item.description }}</strong>
+                    {% if item.details %}
+                    <br><small style="color: #666;">{{ item.details }}</small>
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">${{ item.rate|floatformat:2 }}</td>
+                <td class="text-right">${{ item.amount|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="totals">
+        <table>
+            <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">${{ invoice.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% if invoice.tax_amount %}
+            <tr>
+                <td>Tax ({{ invoice.tax_rate }}%):</td>
+                <td class="text-right">${{ invoice.tax_amount|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+            {% if invoice.discount_amount %}
+            <tr>
+                <td>Discount:</td>
+                <td class="text-right">-${{ invoice.discount_amount|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td>Total:</td>
+                <td class="text-right">${{ invoice.total|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Notes -->
+    {% if invoice.notes %}
+    <div class="notes">
+        <h3>Notes</h3>
+        <p>{{ invoice.notes|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <div class="signature-box">
+            {% if user.digital_signature %}
+                <img src="{{ user.digital_signature.path }}" alt="Digital Signature" class="signature-image">
+            {% endif %}
+            <div class="signature-line">
+                Authorized Signature<br>
+                {{ user.get_full_name }}<br>
+                {% if user.company %}{{ user.company }}{% endif %}
+            </div>
+        </div>
+        <div style="flex: 1;"></div>
+        <div class="signature-box">
+            <div class="signature-line">
+                Client Signature<br>
+                {{ invoice.client.name }}<br>
+                Date: _______________
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Thank you for your business!</p>
+        <p>This invoice was generated by ClearInvoice - Professional Invoicing Made Simple</p>
+    </div>
+</body>
+</html>

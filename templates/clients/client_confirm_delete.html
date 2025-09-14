@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete {{ client.name }} - Invoicely{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="{% url 'client_list' %}" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-users"></i>
+                        <span class="sr-only">Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <a href="{% url 'client_detail' client.pk %}" class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">{{ client.name }}</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">Delete</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Delete Client</h3>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                Are you sure you want to delete <strong>{{ client.name }}</strong>? This action cannot be undone and will also delete all associated invoices and payments.
+            </p>
+            
+            <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-md p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Warning</h3>
+                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                            <p>This will permanently delete:</p>
+                            <ul class="list-disc list-inside mt-1">
+                                <li>Client information and contact details</li>
+                                <li>All invoices associated with this client</li>
+                                <li>All payments related to those invoices</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-3">
+                <a href="{% url 'client_detail' client.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <i class="fas fa-trash mr-2"></i>Delete Client
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

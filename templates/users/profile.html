@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Invoicely{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Manage your account information and preferences.</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h3>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        First Name
+                    </label>
+                    <div class="mt-1">
+                        {{ form.first_name }}
+                    </div>
+                    {% if form.first_name.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.first_name.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Last Name
+                    </label>
+                    <div class="mt-1">
+                        {{ form.last_name }}
+                    </div>
+                    {% if form.last_name.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.last_name.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Email Address
+                    </label>
+                    <div class="mt-1">
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Phone Number
+                    </label>
+                    <div class="mt-1">
+                        {{ form.phone }}
+                    </div>
+                    {% if form.phone.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.phone.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="{{ form.company.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Company
+                    </label>
+                    <div class="mt-1">
+                        {{ form.company }}
+                    </div>
+                    {% if form.company.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.company.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Address
+                    </label>
+                    <div class="mt-1">
+                        {{ form.address }}
+                    </div>
+                    {% if form.address.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.address.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Logo Upload -->
+                <div>
+                    <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Company Logo
+                    </label>
+                    <div class="mt-1">
+                        {{ form.logo }}
+                        {% if user.logo %}
+                            <div class="mt-2">
+                                <img src="{{ user.logo.url }}" alt="Current Logo" class="h-16 w-auto border border-gray-300 rounded">
+                                <p class="text-xs text-gray-500 mt-1">Current logo</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.logo.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.logo.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Upload your company logo to appear on invoices. Recommended size: 200x100px</p>
+                </div>
+
+                <!-- Digital Signature Upload -->
+                <div>
+                    <label for="{{ form.digital_signature.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Digital Signature
+                    </label>
+                    <div class="mt-1">
+                        {{ form.digital_signature }}
+                        {% if user.digital_signature %}
+                            <div class="mt-2">
+                                <img src="{{ user.digital_signature.url }}" alt="Current Signature" class="h-12 w-auto border border-gray-300 rounded bg-white p-2">
+                                <p class="text-xs text-gray-500 mt-1">Current signature</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.digital_signature.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.digital_signature.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Upload your digital signature to appear on invoices. Use a transparent PNG for best results.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                    <i class="fas fa-save mr-2"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

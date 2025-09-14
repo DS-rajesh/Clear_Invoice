@@ -1,0 +1,9 @@
+Django
+djangorestframework
+psycopg2-binary
+django-cors-headers
+Pillow
+python-decouple
+django-extensions
+reportlab
+weasyprint

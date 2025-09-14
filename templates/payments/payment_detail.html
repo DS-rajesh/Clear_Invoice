@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment #{{ payment.pk }} - Invoicely{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="{% url 'payment_list' %}" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="sr-only">Payments</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">Payment #{{ payment.pk }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <div class="mt-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Payment #{{ payment.pk }}</h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">${{ payment.amount|floatformat:2 }} via {{ payment.get_payment_method_display }}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'payment_update' payment.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <i class="fas fa-edit mr-2"></i>Edit
+                </a>
+                <a href="{% url 'payment_delete' payment.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash mr-2"></i>Delete
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Payment Information -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Payment Information</h3>
+            </div>
+            <div class="p-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Amount</dt>
+                        <dd class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">${{ payment.amount|floatformat:2 }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Method</dt>
+                        <dd class="mt-1">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                {{ payment.get_payment_method_display }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.payment_date }}</dd>
+                    </div>
+                    {% if payment.reference_number %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Reference Number</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.reference_number }}</dd>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.created_at|date:"M d, Y g:i A" }}</dd>
+                    </div>
+                    {% if payment.notes %}
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.notes }}</dd>
+                        </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Related Invoice -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Related Invoice</h3>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+                            <a href="{% url 'invoice_detail' payment.invoice.pk %}" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                {{ payment.invoice.invoice_number }}
+                            </a>
+                        </h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ payment.invoice.client.name }}</p>
+                    </div>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                        {% if payment.invoice.status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        {% elif payment.invoice.status == 'unpaid' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        {% elif payment.invoice.status == 'overdue' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                        {% elif payment.invoice.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                        {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+                        {{ payment.invoice.get_status_display }}
+                    </span>
+                </div>
+                
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Invoice Total</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900 dark:text-white">${{ payment.invoice.total|floatformat:2 }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Due Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.invoice.due_date }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Date Issued</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.invoice.date_issued }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Client</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                            <a href="{% url 'client_detail' payment.invoice.client.pk %}" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                {{ payment.invoice.client.name }}
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Payments:</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">
+                            ${{ payment.invoice.payments.all|length|default:0 }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Remaining Balance:</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">
+                            ${{ payment.invoice.total|floatformat:2 }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Invoice {{ invoice.invoice_number }} - Invoicely{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="{% url 'invoice_list' %}" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-file-invoice"></i>
+                        <span class="sr-only">Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <a href="{% url 'invoice_detail' invoice.pk %}" class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">{{ invoice.invoice_number }}</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">Email</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Email Invoice</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Send {{ invoice.invoice_number }} to your client via email.</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Email Details</h3>
+        </div>
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <div>
+                    <label for="{{ form.recipient_email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Recipient Email <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1">
+                        {{ form.recipient_email }}
+                    </div>
+                    {% if form.recipient_email.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.recipient_email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Subject <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1">
+                        {{ form.subject }}
+                    </div>
+                    {% if form.subject.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.subject.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.message.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Message <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1">
+                        {{ form.message }}
+                    </div>
+                    {% if form.message.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.message.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-6 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Email Preview</h3>
+                        <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                            <p>The invoice PDF will be automatically attached to this email.</p>
+                            <ul class="list-disc list-inside mt-1">
+                                <li>Invoice: {{ invoice.invoice_number }}</li>
+                                <li>Amount: ${{ invoice.total|floatformat:2 }}</li>
+                                <li>Due Date: {{ invoice.due_date }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end space-x-3">
+                <a href="{% url 'invoice_detail' invoice.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                    <i class="fas fa-paper-plane mr-2"></i>Send Email
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

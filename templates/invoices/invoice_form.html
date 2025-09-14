@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - ClearInvoice{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="{% url 'invoice_list' %}" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-file-invoice"></i>
+                        <span class="sr-only">Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">{{ title }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="mt-4 text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+    </div>
+
+    <form method="post" x-data="invoiceForm()">
+        {% csrf_token %}
+        
+        <!-- Invoice Header -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Invoice Details</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                        <label for="{{ form.client.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Client <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            {{ form.client }}
+                        </div>
+                        {% if form.client.errors %}
+                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {{ form.client.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.date_issued.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Date Issued <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            {{ form.date_issued }}
+                        </div>
+                        {% if form.date_issued.errors %}
+                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {{ form.date_issued.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Due Date <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            {{ form.due_date }}
+                        </div>
+                        {% if form.due_date.errors %}
+                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {{ form.due_date.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Status
+                        </label>
+                        <div class="mt-1">
+                            {{ form.status }}
+                        </div>
+                        {% if form.status.errors %}
+                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {{ form.status.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label for="{{ form.tax_rate.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Tax Rate (%)
+                    </label>
+                    <div class="mt-1 max-w-xs">
+                        {{ form.tax_rate }}
+                    </div>
+                    {% if form.tax_rate.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.tax_rate.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Items -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Invoice Items</h3>
+                    <button type="button" @click="addItem()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800">
+                        <i class="fas fa-plus mr-2"></i>Add Item
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                {{ formset.management_form }}
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <th class="text-left text-sm font-medium text-gray-700 dark:text-gray-300 pb-2">Description</th>
+                                <th class="text-left text-sm font-medium text-gray-700 dark:text-gray-300 pb-2 w-24">Quantity</th>
+                                <th class="text-left text-sm font-medium text-gray-700 dark:text-gray-300 pb-2 w-32">Unit Price</th>
+                                <th class="text-left text-sm font-medium text-gray-700 dark:text-gray-300 pb-2 w-32">Total</th>
+                                <th class="text-left text-sm font-medium text-gray-700 dark:text-gray-300 pb-2 w-16">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="formset-container">
+                            {% for form in formset %}
+                                <tr class="formset-row border-b border-gray-100 dark:border-gray-700">
+                                    <td class="py-3 pr-3">
+                                        {{ form.description }}
+                                        {% if form.description.errors %}
+                                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                {{ form.description.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 pr-3">
+                                        {{ form.quantity }}
+                                        {% if form.quantity.errors %}
+                                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                {{ form.quantity.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 pr-3">
+                                        {{ form.unit_price }}
+                                        {% if form.unit_price.errors %}
+                                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                {{ form.unit_price.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 pr-3">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">$0.00</div>
+                                    </td>
+                                    <td class="py-3">
+                                        {% if form.DELETE %}
+                                            {{ form.DELETE }}
+                                        {% endif %}
+                                        <button type="button" onclick="removeRow(this)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals -->
+                <div class="mt-6 flex justify-end">
+                    <div class="w-64">
+                        <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white" id="subtotal">$0.00</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Tax:</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white" id="tax">$0.00</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-lg font-medium text-gray-900 dark:text-white">Total:</span>
+                            <span class="text-lg font-bold text-gray-900 dark:text-white" id="total">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes and Terms -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Additional Information</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Notes
+                        </label>
+                        <div class="mt-1">
+                            {{ form.notes }}
+                        </div>
+                        {% if form.notes.errors %}
+                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {{ form.notes.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.terms.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Terms & Conditions
+                        </label>
+                        <div class="mt-1">
+                            {{ form.terms }}
+                        </div>
+                        {% if form.terms.errors %}
+                            <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {{ form.terms.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-3 mb-8">
+            <a href="{% url 'invoice_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+            <button type="submit" name="action" value="save" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600">
+                <i class="fas fa-save mr-2"></i>Save Invoice
+            </button>
+            <button type="submit" name="action" value="generate_pdf" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="fas fa-file-pdf mr-2"></i>Generate PDF
+            </button>
+            <button type="submit" name="action" value="send_email" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                <i class="fas fa-envelope mr-2"></i>Send via Email
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function invoiceForm() {
+    return {
+        addItem() {
+            // This would add a new formset item - simplified for now
+            console.log('Add item clicked');
+        }
+    }
+}
+
+function removeRow(button) {
+    const row = button.closest('.formset-row');
+    const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+    if (deleteCheckbox) {
+        deleteCheckbox.checked = true;
+        row.style.display = 'none';
+    } else {
+        row.remove();
+    }
+    updateTotals();
+}
+
+function updateTotals() {
+    let subtotal = 0;
+    const rows = document.querySelectorAll('.formset-row:not([style*="display: none"])');
+    
+    rows.forEach(row => {
+        const quantity = parseFloat(row.querySelector('input[name$="-quantity"]').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('input[name$="-unit_price"]').value) || 0;
+        const total = quantity * unitPrice;
+        
+        // Update row total
+        const totalCell = row.querySelector('td:nth-child(4) div');
+        if (totalCell) {
+            totalCell.textContent = '$' + total.toFixed(2);
+        }
+        
+        subtotal += total;
+    });
+    
+    const taxRate = parseFloat(document.querySelector('input[name="tax_rate"]').value) || 0;
+    const tax = subtotal * (taxRate / 100);
+    const total = subtotal + tax;
+    
+    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+}
+
+// Add event listeners for real-time calculation
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('input', function(e) {
+        if (e.target.name && (e.target.name.includes('quantity') || e.target.name.includes('unit_price') || e.target.name === 'tax_rate')) {
+            updateTotals();
+        }
+    });
+    
+    // Initial calculation
+    updateTotals();
+});
+</script>
+{% endblock %}

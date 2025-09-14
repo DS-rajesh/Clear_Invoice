@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ - ClearInvoice{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
+        <p class="text-xl text-gray-600">Find answers to common questions about ClearInvoice</p>
+    </div>
+
+    <div class="space-y-8" x-data="{ openFaq: null }">
+        <!-- FAQ Item 1 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 1 ? null : 1" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">What is ClearInvoice?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 1 }"></i>
+            </button>
+            <div x-show="openFaq === 1" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">ClearInvoice is a professional invoicing platform that helps businesses create, send, and track invoices effortlessly. Our platform streamlines your billing process and helps you get paid faster with automated reminders and professional templates.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 2 ? null : 2" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">How much does ClearInvoice cost?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 2 }"></i>
+            </button>
+            <div x-show="openFaq === 2" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">We offer a free plan with basic invoicing features (up to 5 invoices per month) and a Pro plan at $19/month with unlimited invoices, advanced features, and priority support. No hidden fees or setup costs.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 3 ? null : 3" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Can I customize my invoices?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 3 }"></i>
+            </button>
+            <div x-show="openFaq === 3" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">Yes! ClearInvoice offers professional invoice templates that you can customize with your business logo, colors, and branding. You can also add custom fields, notes, and terms & conditions to match your business needs.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 4 ? null : 4" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">How do I track payments?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 4 }"></i>
+            </button>
+            <div x-show="openFaq === 4" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">ClearInvoice provides real-time payment tracking. You'll receive notifications when invoices are viewed, and you can easily mark invoices as paid when you receive payment. Our dashboard gives you a clear overview of all outstanding invoices.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 5 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 5 ? null : 5" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Is my data secure?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 5 }"></i>
+            </button>
+            <div x-show="openFaq === 5" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">Absolutely. We use industry-standard encryption to protect your data, and we're GDPR compliant. Your business and client information is stored securely, and we never share your data with third parties without your explicit consent.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 6 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 6 ? null : 6" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Can I send invoices via email?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 6 }"></i>
+            </button>
+            <div x-show="openFaq === 6" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">Yes! You can send invoices directly to your clients via email with PDF attachments. ClearInvoice also supports automated reminder emails to help reduce late payments and improve cash flow.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 7 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 7 ? null : 7" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Do you offer customer support?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 7 }"></i>
+            </button>
+            <div x-show="openFaq === 7" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">Yes! We provide email support for all users, and Pro plan subscribers get priority support. You can reach us at basnetrajesh245@gmail.com or through our contact form. We typically respond within 24 hours.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 8 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 8 ? null : 8" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Can I cancel my subscription anytime?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 8 }"></i>
+            </button>
+            <div x-show="openFaq === 8" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">Absolutely. You can cancel your Pro subscription at any time without any cancellation fees. Your account will remain active until the end of your current billing period, and you can always downgrade to our free plan.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 9 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 9 ? null : 9" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">What file formats do you support?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 9 }"></i>
+            </button>
+            <div x-show="openFaq === 9" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">ClearInvoice generates professional PDF invoices that are compatible with all devices and email systems. You can download invoices as PDF files or send them directly via email to your clients.</p>
+            </div>
+        </div>
+
+        <!-- FAQ Item 10 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button @click="openFaq = openFaq === 10 ? null : 10" class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">How do I get started?</h3>
+                <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': openFaq === 10 }"></i>
+            </button>
+            <div x-show="openFaq === 10" x-transition class="px-6 pb-4">
+                <p class="text-gray-600">Getting started is easy! Simply sign up for a free account, add your client information, and create your first invoice. The whole process takes less than 5 minutes, and you can start sending professional invoices immediately.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="mt-16 text-center bg-blue-50 rounded-lg p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Still have questions?</h2>
+        <p class="text-gray-600 mb-6">Can't find the answer you're looking for? We're here to help!</p>
+        <a href="{% url 'contact' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+            <i class="fas fa-envelope mr-2"></i>Contact Support
+        </a>
+    </div>
+</div>
+{% endblock %}

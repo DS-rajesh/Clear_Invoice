@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ invoice.invoice_number }} - ClearInvoice{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="{% url 'invoice_list' %}" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-file-invoice"></i>
+                        <span class="sr-only">Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">{{ invoice.invoice_number }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <div class="mt-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ invoice.invoice_number }}</h1>
+                <div class="mt-2 flex items-center space-x-4">
+                    <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full
+                        {% if invoice.status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        {% elif invoice.status == 'unpaid' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        {% elif invoice.status == 'overdue' or invoice.is_overdue %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                        {% elif invoice.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                        {% elif invoice.status == 'sent' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                        {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+                        {% if invoice.is_overdue %}Overdue{% else %}{{ invoice.get_status_display }}{% endif %}
+                    </span>
+                    <span class="text-gray-500 dark:text-gray-400">•</span>
+                    <span class="text-gray-600 dark:text-gray-400">Due {{ invoice.due_date }}</span>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <i class="fas fa-cog mr-2"></i>Actions
+                        <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
+                    <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <a href="{% url 'invoice_pdf' invoice.pk %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-file-pdf mr-2"></i>Download PDF
+                        </a>
+                        <a href="{% url 'invoice_email' invoice.pk %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-envelope mr-2"></i>Email Invoice
+                        </a>
+                        <a href="{% url 'payment_create' %}?invoice={{ invoice.pk }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-credit-card mr-2"></i>Record Payment
+                        </a>
+                        <div class="border-t border-gray-100 dark:border-gray-700"></div>
+                        <form method="post" action="{% url 'invoice_status_update' invoice.pk %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="paid">
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-check mr-2"></i>Mark as Paid
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <a href="{% url 'invoice_update' invoice.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                    <i class="fas fa-edit mr-2"></i>Edit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Preview -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+        <div class="p-8">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-8">
+                <div class="flex items-start space-x-6">
+                    {% if invoice.user.logo %}
+                        <div class="flex-shrink-0">
+                            <img src="{{ invoice.user.logo.url }}" alt="Company Logo" class="h-16 w-auto max-w-32 object-contain">
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">INVOICE</h2>
+                        <p class="text-gray-600 dark:text-gray-400">{{ invoice.invoice_number }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ invoice.user.company|default:invoice.user.get_full_name }}</div>
+                    {% if invoice.user.email %}
+                        <div class="text-gray-600 dark:text-gray-400">{{ invoice.user.email }}</div>
+                    {% endif %}
+                    {% if invoice.user.phone %}
+                        <div class="text-gray-600 dark:text-gray-400">{{ invoice.user.phone }}</div>
+                    {% endif %}
+                    {% if invoice.user.address %}
+                        <div class="text-gray-600 dark:text-gray-400">{{ invoice.user.address }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Client and Invoice Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Bill To</h3>
+                    <div class="text-gray-900 dark:text-white">
+                        <div class="font-medium">{{ invoice.client.name }}</div>
+                        {% if invoice.client.company %}
+                            <div>{{ invoice.client.company }}</div>
+                        {% endif %}
+                        <div>{{ invoice.client.email }}</div>
+                        {% if invoice.client.phone %}
+                            <div>{{ invoice.client.phone }}</div>
+                        {% endif %}
+                        {% if invoice.client.full_address %}
+                            <div class="mt-1">{{ invoice.client.full_address }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Invoice Details</h3>
+                    <div class="space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Date Issued:</span>
+                            <span class="text-gray-900 dark:text-white">{{ invoice.date_issued }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Due Date:</span>
+                            <span class="text-gray-900 dark:text-white">{{ invoice.due_date }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Status:</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {% if invoice.status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                {% elif invoice.status == 'unpaid' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                {% elif invoice.status == 'overdue' or invoice.is_overdue %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                {% elif invoice.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                                {% elif invoice.status == 'sent' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                                {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+                                {% if invoice.is_overdue %}Overdue{% else %}{{ invoice.get_status_display }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="mb-8">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b-2 border-gray-200 dark:border-gray-700">
+                            <th class="text-left py-3 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
+                            <th class="text-right py-3 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">Qty</th>
+                            <th class="text-right py-3 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Price</th>
+                            <th class="text-right py-3 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for item in invoice.items.all %}
+                            <tr>
+                                <td class="py-4 text-sm text-gray-900 dark:text-white">{{ item.description }}</td>
+                                <td class="py-4 text-sm text-gray-900 dark:text-white text-right">{{ item.quantity|floatformat:0 }}</td>
+                                <td class="py-4 text-sm text-gray-900 dark:text-white text-right">${{ item.unit_price|floatformat:2 }}</td>
+                                <td class="py-4 text-sm text-gray-900 dark:text-white text-right font-medium">${{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="flex justify-end">
+                <div class="w-64">
+                    <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">${{ invoice.subtotal|floatformat:2 }}</span>
+                    </div>
+                    {% if invoice.tax_amount > 0 %}
+                        <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Tax ({{ invoice.tax_rate }}%):</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">${{ invoice.tax_amount|floatformat:2 }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="flex justify-between py-3 border-b-2 border-gray-200 dark:border-gray-700">
+                        <span class="text-lg font-medium text-gray-900 dark:text-white">Total:</span>
+                        <span class="text-lg font-bold text-gray-900 dark:text-white">${{ invoice.total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes and Terms -->
+            {% if invoice.notes or invoice.terms %}
+                <div class="space-y-6">
+                    {% if invoice.notes %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Notes</h3>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ invoice.notes }}</p>
+                        </div>
+                    {% endif %}
+                    {% if invoice.terms %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Terms & Conditions</h3>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ invoice.terms }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Digital Signature -->
+            {% if invoice.user.digital_signature %}
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-end">
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <img src="{{ invoice.user.digital_signature.url }}" alt="Digital Signature" class="h-12 w-auto max-w-40 object-contain mx-auto">
+                            </div>
+                            <div class="border-t border-gray-400 pt-2 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="font-medium">{{ invoice.user.get_full_name }}</div>
+                                {% if invoice.user.company %}
+                                    <div>{{ invoice.user.company }}</div>
+                                {% endif %}
+                                <div class="text-xs mt-1">Authorized Signature</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="h-12 mb-4"></div>
+                            <div class="border-t border-gray-400 pt-2 text-sm text-gray-600 dark:text-gray-400 w-40">
+                                <div class="font-medium">Client Signature</div>
+                                <div class="text-xs mt-1">Date: ___________</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    {% if invoice.payments.exists %}
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Payment History</h3>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for payment in invoice.payments.all %}
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                    ${{ payment.amount|floatformat:2 }} - {{ payment.get_payment_method_display }}
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ payment.payment_date }}
+                                    {% if payment.reference_number %}
+                                        • Ref: {{ payment.reference_number }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <a href="{% url 'payment_detail' payment.pk %}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

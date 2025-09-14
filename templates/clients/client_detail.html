@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ client.name }} - Invoicely{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="{% url 'client_list' %}" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-users"></i>
+                        <span class="sr-only">Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">{{ client.name }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="h-12 w-12 rounded-full bg-indigo-500 flex items-center justify-center">
+                    <span class="text-lg font-medium text-white">{{ client.name.0|upper }}</span>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ client.name }}</h1>
+                    {% if client.company %}
+                        <p class="text-gray-600 dark:text-gray-400">{{ client.company }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'invoice_create' %}?client={{ client.pk }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                    <i class="fas fa-plus mr-2"></i>New Invoice
+                </a>
+                <a href="{% url 'client_update' client.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <i class="fas fa-edit mr-2"></i>Edit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- Client Information -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Client Information</h3>
+                </div>
+                <div class="p-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                                <a href="mailto:{{ client.email }}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                    {{ client.email }}
+                                </a>
+                            </dd>
+                        </div>
+                        {% if client.phone %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                                    <a href="tel:{{ client.phone }}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                        {{ client.phone }}
+                                    </a>
+                                </dd>
+                            </div>
+                        {% endif %}
+                        {% if client.company %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Company</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ client.company }}</dd>
+                            </div>
+                        {% endif %}
+                        {% if client.tax_number %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tax Number</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ client.tax_number }}</dd>
+                            </div>
+                        {% endif %}
+                        {% if client.full_address %}
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Address</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ client.full_address }}</dd>
+                            </div>
+                        {% endif %}
+                        {% if client.notes %}
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ client.notes }}</dd>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {% if client.is_active %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                                    {% if client.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ client.created_at|date:"M d, Y" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Invoices -->
+        <div>
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Invoices</h3>
+                        <a href="{% url 'invoice_list' %}?client={{ client.pk }}" class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                            View all
+                        </a>
+                    </div>
+                </div>
+                <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for invoice in invoices %}
+                        <div class="px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        <a href="{% url 'invoice_detail' invoice.pk %}" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                            {{ invoice.invoice_number }}
+                                        </a>
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ invoice.date_issued }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">${{ invoice.total|floatformat:2 }}</p>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if invoice.status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                        {% elif invoice.status == 'unpaid' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                        {% elif invoice.status == 'overdue' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                        {% elif invoice.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                                        {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+                                        {{ invoice.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="px-6 py-8 text-center">
+                            <i class="fas fa-file-invoice text-4xl text-gray-400 dark:text-gray-600 mb-2"></i>
+                            <p class="text-gray-500 dark:text-gray-400">No invoices yet</p>
+                            <a href="{% url 'invoice_create' %}?client={{ client.pk }}" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800">
+                                <i class="fas fa-plus mr-2"></i>Create Invoice
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

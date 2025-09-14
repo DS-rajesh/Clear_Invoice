@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+</head>
+<body>
+    <div class="header">
+        <div class="company-info">
+            <div class="invoice-title">INVOICE</div>
+            <div><strong>{{ invoice.user.company|default:invoice.user.get_full_name }}</strong></div>
+            {% if invoice.user.email %}<div>{{ invoice.user.email }}</div>{% endif %}
+            {% if invoice.user.phone %}<div>{{ invoice.user.phone }}</div>{% endif %}
+            {% if invoice.user.address %}<div>{{ invoice.user.address }}</div>{% endif %}
+        </div>
+    </div>
+
+    <div class="invoice-info">
+        <div class="client-info">
+            <div class="section-title">Bill To:</div>
+            <div><strong>{{ invoice.client.name }}</strong></div>
+            {% if invoice.client.company %}<div>{{ invoice.client.company }}</div>{% endif %}
+            <div>{{ invoice.client.email }}</div>
+            {% if invoice.client.phone %}<div>{{ invoice.client.phone }}</div>{% endif %}
+            {% if invoice.client.full_address %}<div>{{ invoice.client.full_address }}</div>{% endif %}
+        </div>
+        
+        <div class="invoice-details">
+            <div class="section-title">Invoice Details:</div>
+            <div><strong>Invoice #:</strong> {{ invoice.invoice_number }}</div>
+            <div><strong>Date Issued:</strong> {{ invoice.date_issued }}</div>
+            <div><strong>Due Date:</strong> {{ invoice.due_date }}</div>
+            <div><strong>Status:</strong> 
+                <span class="status-badge status-{{ invoice.status }}">
+                    {% if invoice.is_overdue %}Overdue{% else %}{{ invoice.get_status_display }}{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td class="text-right">{{ item.quantity|floatformat:0 }}</td>
+                    <td class="text-right">${{ item.unit_price|floatformat:2 }}</td>
+                    <td class="text-right">${{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">${{ invoice.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% if invoice.tax_amount > 0 %}
+                <tr>
+                    <td>Tax ({{ invoice.tax_rate }}%):</td>
+                    <td class="text-right">${{ invoice.tax_amount|floatformat:2 }}</td>
+                </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td><strong>Total:</strong></td>
+                <td class="text-right"><strong>${{ invoice.total|floatformat:2 }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    {% if invoice.notes or invoice.terms %}
+        <div class="footer">
+            {% if invoice.notes %}
+                <div>
+                    <strong>Notes:</strong><br>
+                    {{ invoice.notes }}
+                </div>
+            {% endif %}
+            {% if invoice.terms %}
+                <div style="margin-top: 20px;">
+                    <strong>Terms & Conditions:</strong><br>
+                    {{ invoice.terms }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

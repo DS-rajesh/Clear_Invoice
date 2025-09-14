@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Invoicely{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex">
+    <!-- Left side - Registration Form -->
+    <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <div class="mx-auto w-full max-w-sm lg:w-96">
+            <div>
+                <a href="{% url 'landing' %}" class="text-2xl font-bold text-indigo-600 flex items-center">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>Invoicely
+                </a>
+                <h2 class="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+                    Create your account
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+
+            <div class="mt-8">
+                <form class="space-y-6" method="post">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            First Name
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.first_name.id_for_label }}" 
+                                   name="{{ form.first_name.name }}" 
+                                   type="text" 
+                                   autocomplete="given-name" 
+                                   required 
+                                   class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter your first name"
+                                   value="{{ form.first_name.value|default:'' }}">
+                        </div>
+                        {% if form.first_name.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.first_name.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Last Name
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.last_name.id_for_label }}" 
+                                   name="{{ form.last_name.name }}" 
+                                   type="text" 
+                                   autocomplete="family-name" 
+                                   required 
+                                   class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter your last name"
+                                   value="{{ form.last_name.value|default:'' }}">
+                        </div>
+                        {% if form.last_name.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.last_name.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Email address
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.email.id_for_label }}" 
+                                   name="{{ form.email.name }}" 
+                                   type="email" 
+                                   autocomplete="email" 
+                                   required 
+                                   class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter your email"
+                                   value="{{ form.email.value|default:'' }}">
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Username
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-at text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.username.id_for_label }}" 
+                                   name="{{ form.username.name }}" 
+                                   type="text" 
+                                   autocomplete="username" 
+                                   required 
+                                   class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Choose a username"
+                                   value="{{ form.username.value|default:'' }}">
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.username.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Password
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.password1.id_for_label }}" 
+                                   name="{{ form.password1.name }}" 
+                                   type="password" 
+                                   autocomplete="new-password" 
+                                   required 
+                                   class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Create a password">
+                        </div>
+                        {% if form.password1.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.password1.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Confirm Password
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.password2.id_for_label }}" 
+                                   name="{{ form.password2.name }}" 
+                                   type="password" 
+                                   autocomplete="new-password" 
+                                   required 
+                                   class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Confirm your password">
+                        </div>
+                        {% if form.password2.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.password2.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center">
+                        <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="terms" class="ml-2 block text-sm text-gray-900">
+                            I agree to the 
+                            <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a> 
+                            and 
+                            <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                <i class="fas fa-user-plus text-indigo-500 group-hover:text-indigo-400"></i>
+                            </span>
+                            Create your account
+                        </button>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="mt-3 text-sm text-red-600 text-center">
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right side - Hero Image/Content -->
+    <div class="hidden lg:block relative w-0 flex-1">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-600 to-indigo-700">
+            <div class="absolute inset-0 bg-black opacity-20"></div>
+            <div class="relative h-full flex flex-col justify-center items-center text-white p-12">
+                <div class="text-center">
+                    <i class="fas fa-rocket text-6xl mb-6 text-purple-300"></i>
+                    <h3 class="text-3xl font-bold mb-4">Start Your Journey</h3>
+                    <p class="text-xl text-purple-100 mb-8 max-w-md">
+                        Join thousands of businesses who trust Invoicely to manage their invoicing needs professionally.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center text-purple-100">
+                            <i class="fas fa-check-circle mr-3 text-purple-300"></i>
+                            <span>Professional invoice templates</span>
+                        </div>
+                        <div class="flex items-center text-purple-100">
+                            <i class="fas fa-check-circle mr-3 text-purple-300"></i>
+                            <span>Automated payment tracking</span>
+                        </div>
+                        <div class="flex items-center text-purple-100">
+                            <i class="fas fa-check-circle mr-3 text-purple-300"></i>
+                            <span>Detailed analytics & reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
