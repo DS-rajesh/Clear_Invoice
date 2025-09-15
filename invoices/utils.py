@@ -13,40 +13,6 @@ import io
 import os
 from datetime import datetime
 
-# Optional WeasyPrint import for HTML-based PDF generation
-try:
-    from weasyprint import HTML, CSS
-    from weasyprint.text.fonts import FontConfiguration
-    WEASYPRINT_AVAILABLE = True
-except ImportError:
-    WEASYPRINT_AVAILABLE = False
-
-def generate_pdf_html(invoice):
-    """
-    Generate PDF invoice using HTML template and WeasyPrint
-    
-    Args:
-        invoice: Invoice model instance
-    
-    Returns:
-        bytes: PDF content
-    """
-    if not WEASYPRINT_AVAILABLE:
-        raise ImportError("WeasyPrint is not available. Please install required system dependencies.")
-    
-    # Render the HTML template with invoice data
-    html_content = render_to_string('invoices/invoice_pdf_template.html', {
-        'invoice': invoice,
-        'user': invoice.user if hasattr(invoice, 'user') else None,
-    })
-    
-    # Generate PDF from HTML
-    font_config = FontConfiguration()
-    html = HTML(string=html_content, base_url=settings.MEDIA_URL)
-    pdf_bytes = html.write_pdf(font_config=font_config)
-    
-    return pdf_bytes
-
 
 def generate_pdf(invoice, save_to_file=False, file_path=None):
     """
@@ -330,14 +296,13 @@ def _get_status_display(status):
     return f'<font color="{status_colors.get(status, "#6b7280")}">{status.upper()}</font>'
 
 
-def generate_invoice_response(invoice, filename=None, use_html=True):
+def generate_invoice_response(invoice, filename=None):
     """
-    Generate HTTP response with PDF invoice
+    Generate HTTP response with PDF invoice using ReportLab
     
     Args:
         invoice: Invoice model instance
         filename: Optional filename for download
-        use_html: Boolean, if True uses HTML template, otherwise ReportLab
     
     Returns:
         HttpResponse: PDF response for download
@@ -346,13 +311,9 @@ def generate_invoice_response(invoice, filename=None, use_html=True):
         filename = f"invoice_{invoice.invoice_number}.pdf"
     
     try:
-        if use_html and WEASYPRINT_AVAILABLE:
-            pdf_data = generate_pdf_html(invoice)
-        else:
-            pdf_data = generate_pdf(invoice)
-    except Exception as e:
-        # Fallback to ReportLab if HTML generation fails
         pdf_data = generate_pdf(invoice)
+    except Exception as e:
+        raise Exception(f"Error generating PDF: {str(e)}")
     
     response = HttpResponse(pdf_data, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'

@@ -6,4 +6,3 @@ Pillow
 python-decouple
 django-extensions
 reportlab
-weasyprint
