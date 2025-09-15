@@ -1,6 +1,6 @@
 # Invoicely - Invoice Management System
 
-A comprehensive Django-based invoice management system similar to Invoicely.gg for creating, sending, and managing invoices with client management, payment tracking, and a modern dashboard.
+A comprehensive Django-based invoice management system  for creating, sending, and managing invoices with client management, payment tracking, and a modern dashboard.
 
 ## Features
 
