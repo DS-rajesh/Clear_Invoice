@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html lang="en" class="h-full bg-gray-50" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-bind:class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Invoice - ClearInvoice</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#e0f2fe',
+                            500: '#1E90FF',
+                            600: '#1976d2',
+                            700: '#1565c0',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    
+    
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-full">
+        
+
+        <!-- Messages -->
+        
+
+        <!-- Page content -->
+        <main class="py-0">
+            
+<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li>
+                    <a href="/api/invoices/" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
+                        <i class="fas fa-file-invoice"></i>
+                        <span class="sr-only">Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400">Test Invoice</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Test Invoice</h1>
+    </div>
+
+    <form method="post" id="invoice-form" class="space-y-6">
+        
+        
+        <!-- Invoice Header Card -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Invoice Details</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Client <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative mt-1">
+                            
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            Select an existing client or <a href="/api/clients/clients/add/" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">create a new one</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Date Issued <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative mt-1">
+                            
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-calendar text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div>
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Due Date <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative mt-1">
+                            
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-calendar-check text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Tax Rate (%)
+                        </label>
+                        <div class="relative mt-1">
+                            
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-percent text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div>
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Status
+                        </label>
+                        <div class="mt-1">
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Items Card -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Invoice Items</h3>
+                    <div class="flex space-x-2">
+                        <button type="button" id="product-lookup-btn" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500">
+                            <i class="fas fa-search mr-2"></i>Lookup
+                        </button>
+                        <button type="button" id="add-item-btn" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-plus mr-2"></i>Add Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                
+                
+                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Quantity</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Unit Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Total</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-16">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="formset-container" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals Summary -->
+                <div class="mt-8 bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="lg:col-start-3 lg:col-span-2">
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="subtotal">$0.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-300">Tax (<span id="tax-rate-display">0</span>%):</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="tax">$0.00</span>
+                                </div>
+                                <div class="flex justify-between pt-3 border-t border-gray-200 dark:border-gray-600">
+                                    <span class="text-lg font-medium text-gray-900 dark:text-white">Total:</span>
+                                    <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400" id="total">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes and Terms Card -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Additional Information</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Notes
+                        </label>
+                        <div class="mt-1">
+                            
+                        </div>
+                        
+                    </div>
+
+                    <div>
+                        <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Terms & Conditions
+                        </label>
+                        <div class="mt-1">
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex flex-col sm:flex-row items-center justify-end space-y-4 sm:space-y-0 sm:space-x-3 pt-6">
+            <a href="/api/invoices/" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+            <button type="submit" name="action" value="save" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-save mr-2"></i>Save Invoice
+            </button>
+            <button type="submit" name="action" value="generate_pdf" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-file-pdf mr-2"></i>Generate PDF
+            </button>
+            <button type="submit" name="action" value="send_email" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-envelope mr-2"></i>Send via Email
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Floating Save Button -->
+<div class="fixed bottom-6 right-6 z-10">
+    <button type="submit" form="invoice-form" name="action" value="save" class="inline-flex items-center px-4 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+        <i class="fas fa-save mr-2"></i>Save Invoice
+    </button>
+</div>
+
+        </main>
+    </div>
+
+    
+<script>
+// Keep track of the formset index
+let formsetIndex = document.getElementById('id_items-TOTAL_FORMS').value;
+
+// Function to add a new formset item
+document.getElementById('add-item-btn').addEventListener('click', function() {
+    const formsetContainer = document.getElementById('formset-container');
+    
+    // Create a new row
+    const newRow = document.createElement('tr');
+    newRow.className = 'formset-row hover:bg-gray-50 dark:hover:bg-gray-750';
+    newRow.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="text" name="items-${formsetIndex}-description" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500" placeholder="Item description">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="number" name="items-${formsetIndex}-quantity" value="1" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500" placeholder="Quantity">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="number" name="items-${formsetIndex}-unit_price" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500" placeholder="Unit price">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900 dark:text-white item-total">$0.00</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            <input type="checkbox" name="items-${formsetIndex}-DELETE" id="id_items-${formsetIndex}-DELETE" style="display: none;">
+            <button type="button" onclick="removeRow(this)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 remove-item-btn p-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">
+                <i class="fas fa-trash"></i>
+            </button>
+            <input type="hidden" name="items-${formsetIndex}-id" id="id_items-${formsetIndex}-id">
+        </td>
+    `;
+    
+    formsetContainer.appendChild(newRow);
+    
+    // Update the management form
+    document.getElementById('id_items-TOTAL_FORMS').value = parseInt(formsetIndex) + 1;
+    
+    // Increment the formset index
+    formsetIndex = parseInt(formsetIndex) + 1;
+    
+    // Add event listeners to the new inputs
+    const newInputs = newRow.querySelectorAll('input[name$="-quantity"], input[name$="-unit_price"]');
+    newInputs.forEach(input => {
+        input.addEventListener('input', updateTotals);
+    });
+    
+    // Update totals
+    updateTotals();
+});
+
+// Product lookup functionality
+document.getElementById('product-lookup-btn').addEventListener('click', function() {
+    const query = prompt('Enter product/service name to search:');
+    if (query) {
+        fetch(`/invoices/api/products/lookup/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.products && data.products.length > 0) {
+                    // Show selection dialog or auto-fill first result
+                    const product = data.products[0];
+                    addProductToInvoice(product);
+                } else {
+                    alert('No products found matching your search.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error searching for products.');
+            });
+    }
+});
+
+function addProductToInvoice(product) {
+    const formsetContainer = document.getElementById('formset-container');
+    
+    // Create a new row
+    const newRow = document.createElement('tr');
+    newRow.className = 'formset-row hover:bg-gray-50 dark:hover:bg-gray-750';
+    newRow.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="text" name="items-${formsetIndex}-description" value="${product.name}" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="number" name="items-${formsetIndex}-quantity" value="1" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="number" name="items-${formsetIndex}-unit_price" value="${product.unit_price}" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900 dark:text-white item-total">$${(product.unit_price).toFixed(2)}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            <input type="checkbox" name="items-${formsetIndex}-DELETE" id="id_items-${formsetIndex}-DELETE" style="display: none;">
+            <button type="button" onclick="removeRow(this)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 remove-item-btn p-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">
+                <i class="fas fa-trash"></i>
+            </button>
+            <input type="hidden" name="items-${formsetIndex}-id" id="id_items-${formsetIndex}-id">
+        </td>
+    `;
+    
+    formsetContainer.appendChild(newRow);
+    
+    // Update the management form
+    document.getElementById('id_items-TOTAL_FORMS').value = parseInt(formsetIndex) + 1;
+    
+    // Increment the formset index
+    formsetIndex = parseInt(formsetIndex) + 1;
+    
+    // Add event listeners to the new inputs
+    const newInputs = newRow.querySelectorAll('input[name$="-quantity"], input[name$="-unit_price"]');
+    newInputs.forEach(input => {
+        input.addEventListener('input', updateTotals);
+    });
+    
+    // Update totals
+    updateTotals();
+}
+
+function removeRow(button) {
+    const row = button.closest('.formset-row');
+    const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+    if (deleteCheckbox) {
+        deleteCheckbox.checked = true;
+        row.style.display = 'none';
+    } else {
+        row.remove();
+    }
+    updateTotals();
+}
+
+function updateTotals() {
+    let subtotal = 0;
+    const rows = document.querySelectorAll('.formset-row:not([style*="display: none"])');
+    
+    rows.forEach(row => {
+        const quantityInput = row.querySelector('input[name$="-quantity"]');
+        const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+        const totalElement = row.querySelector('.item-total');
+        
+        if (quantityInput && unitPriceInput && totalElement) {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const unitPrice = parseFloat(unitPriceInput.value) || 0;
+            const total = quantity * unitPrice;
+            
+            // Update row total
+            totalElement.textContent = '$' + total.toFixed(2);
+            
+            subtotal += total;
+        }
+    });
+    
+    // Get tax rate
+    const taxRateInput = document.querySelector('input[name="tax_rate"]');
+    const taxRate = parseFloat(taxRateInput.value) || 0;
+    
+    // Update tax rate display
+    document.getElementById('tax-rate-display').textContent = taxRate.toFixed(2);
+    
+    // Calculate tax and total
+    const tax = subtotal * (taxRate / 100);
+    const total = subtotal + tax;
+    
+    // Update summary totals
+    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+}
+
+// Add event listeners for real-time calculation
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to existing inputs
+    document.addEventListener('input', function(e) {
+        if (e.target.name && (e.target.name.includes('quantity') || e.target.name.includes('unit_price') || e.target.name === 'tax_rate')) {
+            updateTotals();
+        }
+    });
+    
+    // Add event listeners to all remove buttons
+    document.querySelectorAll('.remove-item-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            removeRow(this);
+        });
+    });
+    
+    // Initial calculation
+    updateTotals();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+S to save
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        document.querySelector('button[value="save"]').click();
+    }
+    
+    // Enter in item fields to add new item
+    if (e.key === 'Enter') {
+        const activeElement = document.activeElement;
+        if (activeElement.name && activeElement.name.includes('unit_price')) {
+            document.getElementById('add-item-btn').click();
+        }
+    }
+});
+</script>
+
+</body>
+</html>

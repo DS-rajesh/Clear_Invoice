@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en" class="h-full bg-gray-50" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-bind:class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
@@ -33,6 +34,9 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
     
     {% block extra_head %}{% endblock %}
 </head>
@@ -90,6 +94,13 @@
                             </div>
                         </div>
                         <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                            <!-- GitHub Star Button -->
+                            <a href="https://github.com/RajeshBasnet-dev/Clear_Invoice" target="_blank" 
+                               class="flex items-center bg-gray-900 hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-300 mr-4">
+                                <i class="fab fa-github text-white mr-1"></i>
+                                <span>⭐ Star</span>
+                            </a>
+                            
                             <!-- Dark mode toggle -->
                             <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="rounded-md p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200">
                                 <i x-show="!darkMode" class="fas fa-moon"></i>
@@ -157,6 +168,12 @@
                             </div>
                         </div>
                         <div class="mt-3 space-y-1">
+                            <!-- GitHub Star Button - Mobile -->
+                            <a href="https://github.com/RajeshBasnet-dev/Clear_Invoice" target="_blank" 
+                               class="flex items-center bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 mx-4">
+                                <i class="fab fa-github text-white mr-2"></i>
+                                <span>⭐ Star on GitHub</span>
+                            </a>
                             <a href="{% url 'profile' %}" class="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200">
                                 <i class="fas fa-user mr-2"></i>Profile
                             </a>
@@ -204,11 +221,9 @@
         {% endif %}
 
         <!-- Page content -->
-        <main class="{% if user.is_authenticated %}py-10{% else %}py-0{% endif %}">
+        <main class="py-6">
             {% block content %}{% endblock %}
         </main>
     </div>
-
-    {% block extra_js %}{% endblock %}
 </body>
 </html>
