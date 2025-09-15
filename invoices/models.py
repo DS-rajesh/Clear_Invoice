@@ -6,6 +6,23 @@ import uuid
 
 User = get_user_model()
 
+class ProductService(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products_services')
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'products_services'
+        ordering = ['name']
+        unique_together = ['user', 'name']
+    
+    def __str__(self):
+        return f"{self.name} - ${self.unit_price}"
+
 class Invoice(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
@@ -36,6 +53,13 @@ class Invoice(models.Model):
     class Meta:
         db_table = 'invoices'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['invoice_number']),
+            models.Index(fields=['user', 'client']),
+            models.Index(fields=['date_issued']),
+            models.Index(fields=['due_date']),
+            models.Index(fields=['status']),
+        ]
     
     def __str__(self):
         return f"Invoice {self.invoice_number} - {self.client.name}"
@@ -43,7 +67,7 @@ class Invoice(models.Model):
     def save(self, *args, **kwargs):
         if not self.invoice_number:
             self.invoice_number = self.generate_invoice_number()
-        self.calculate_totals()
+        # Note: We don't calculate totals here anymore as it's handled in the view
         super().save(*args, **kwargs)
     
     def generate_invoice_number(self):
@@ -63,7 +87,8 @@ class Invoice(models.Model):
         return f'INV-{year}-{new_number:03d}'
     
     def calculate_totals(self):
-        self.subtotal = sum(item.subtotal for item in self.items.all())
+        """Calculate invoice totals based on items"""
+        self.subtotal = sum(item.get_subtotal() for item in self.items.all())
         self.tax_amount = self.subtotal * (self.tax_rate / 100)
         self.total = self.subtotal + self.tax_amount
     
@@ -87,13 +112,18 @@ class InvoiceItem(models.Model):
     class Meta:
         db_table = 'invoice_items'
         ordering = ['id']
+        indexes = [
+            models.Index(fields=['invoice']),
+        ]
     
     def __str__(self):
         return f"{self.description} - {self.invoice.invoice_number}"
     
+    def get_subtotal(self):
+        """Calculate and return the subtotal for this item"""
+        return self.quantity * self.unit_price
+    
     def save(self, *args, **kwargs):
-        self.subtotal = self.quantity * self.unit_price
+        # Calculate subtotal before saving
+        self.subtotal = self.get_subtotal()
         super().save(*args, **kwargs)
-        # Recalculate invoice totals
-        self.invoice.calculate_totals()
-        self.invoice.save()

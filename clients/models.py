@@ -24,6 +24,11 @@ class Client(models.Model):
         db_table = 'clients'
         ordering = ['-created_at']
         unique_together = ['user', 'email']
+        indexes = [
+            models.Index(fields=['user']),
+            models.Index(fields=['email']),
+            models.Index(fields=['name']),
+        ]
     
     def __str__(self):
         return f"{self.name} ({self.company or 'Individual'})"

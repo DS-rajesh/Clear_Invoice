@@ -13,6 +13,40 @@ import io
 import os
 from datetime import datetime
 
+# Optional WeasyPrint import for HTML-based PDF generation
+try:
+    from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
+
+def generate_pdf_html(invoice):
+    """
+    Generate PDF invoice using HTML template and WeasyPrint
+    
+    Args:
+        invoice: Invoice model instance
+    
+    Returns:
+        bytes: PDF content
+    """
+    if not WEASYPRINT_AVAILABLE:
+        raise ImportError("WeasyPrint is not available. Please install required system dependencies.")
+    
+    # Render the HTML template with invoice data
+    html_content = render_to_string('invoices/invoice_pdf_template.html', {
+        'invoice': invoice,
+        'user': invoice.user if hasattr(invoice, 'user') else None,
+    })
+    
+    # Generate PDF from HTML
+    font_config = FontConfiguration()
+    html = HTML(string=html_content, base_url=settings.MEDIA_URL)
+    pdf_bytes = html.write_pdf(font_config=font_config)
+    
+    return pdf_bytes
+
 
 def generate_pdf(invoice, save_to_file=False, file_path=None):
     """

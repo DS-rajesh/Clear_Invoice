@@ -17,6 +17,8 @@ class InvoiceForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['client'].queryset = Client.objects.filter(user=user, is_active=True)
+        # Show client name and company in the dropdown
+        self.fields['client'].label_from_instance = lambda obj: f"{obj.name} ({obj.company or 'Individual'})" if obj.company else obj.name
         
         for field in self.fields:
             if field in ['notes', 'terms']:
@@ -32,11 +34,16 @@ class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
         fields = ['description', 'quantity', 'unit_price']
+        widgets = {
+            'description': forms.TextInput(attrs={'placeholder': 'Item description'}),
+            'quantity': forms.NumberInput(attrs={'placeholder': 'Quantity', 'step': '0.01'}),
+            'unit_price': forms.NumberInput(attrs={'placeholder': 'Unit price', 'step': '0.01'}),
+        }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
                 'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
             })
 

@@ -8,15 +8,31 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth import get_user_model
+import json
 from .models import Invoice, InvoiceItem
 from .forms import InvoiceForm, InvoiceItemFormSet, InvoiceSearchForm, EmailInvoiceForm
 from .utils import generate_pdf
+from clients.models import Client
 import csv
 
+
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+
+
 @login_required
+@cache_page(60)
 def invoice_list_view(request):
     form = InvoiceSearchForm(request.user, request.GET)
-    invoices = Invoice.objects.filter(user=request.user)
+    invoices = (
+        Invoice.objects
+        .filter(user=request.user)
+        .select_related('client')
+        .prefetch_related('items')
+    )
     
     if form.is_valid():
         search = form.cleaned_data.get('search')
@@ -25,9 +41,9 @@ def invoice_list_view(request):
         
         if search:
             invoices = invoices.filter(
-                Q(invoice_number__icontains=search) |
-                Q(client__name__icontains=search) |
-                Q(client__email__icontains=search)
+                Q(invoice_number__icontains=search) |  # type: ignore
+                Q(client__name__icontains=search) |  # type: ignore
+                Q(client__email__icontains=search)  # type: ignore
             )
         
         if status:
@@ -48,8 +64,17 @@ def invoice_list_view(request):
     return render(request, 'invoices/invoice_list.html', context)
 
 @login_required
+@cache_page(60)
 def invoice_detail_view(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
+    invoice = (
+        Invoice.objects
+        .select_related('client', 'user')
+        .prefetch_related('items')
+        .filter(user=request.user, pk=pk)
+        .first()
+    )
+    if not invoice:
+        invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
     
     context = {
         'invoice': invoice,
@@ -68,7 +93,16 @@ def invoice_create_view(request):
             invoice.save()
             
             formset.instance = invoice
-            formset.save()
+            instances = formset.save(commit=False)
+            
+            # Save each item and calculate subtotal
+            for instance in instances:
+                instance.invoice = invoice
+                instance.save()
+            
+            # Handle deletions
+            for obj in formset.deleted_objects:
+                obj.delete()
             
             # Recalculate totals
             invoice.calculate_totals()
@@ -85,7 +119,7 @@ def invoice_create_view(request):
         'formset': formset,
         'title': 'Create New Invoice',
     }
-    return render(request, 'invoices/invoice_form.html', context)
+    return render(request, 'invoices/invoice_form_enhanced.html', context)
 
 @login_required
 def invoice_update_view(request, pk):
@@ -97,7 +131,16 @@ def invoice_update_view(request, pk):
         
         if form.is_valid() and formset.is_valid():
             form.save()
-            formset.save()
+            instances = formset.save(commit=False)
+            
+            # Save each item
+            for instance in instances:
+                instance.invoice = invoice
+                instance.save()
+            
+            # Handle deletions
+            for obj in formset.deleted_objects:
+                obj.delete()
             
             # Recalculate totals
             invoice.calculate_totals()
@@ -134,10 +177,22 @@ def invoice_delete_view(request, pk):
 
 @login_required
 def invoice_pdf_view(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
-    
+    invoice = (
+        Invoice.objects
+        .select_related('client', 'user')
+        .prefetch_related('items')
+        .filter(user=request.user, pk=pk)
+        .first()
+    )
+    if not invoice:
+        invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
+
+    cache_key = f"invoice_pdf:{invoice.pk}:{int(invoice.updated_at.timestamp())}"
+    pdf_content = cache.get(cache_key)
     try:
-        pdf_content = generate_pdf(invoice)
+        if not pdf_content:
+            pdf_content = generate_pdf(invoice)
+            cache.set(cache_key, pdf_content, timeout=300)
         response = HttpResponse(pdf_content, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
         return response
@@ -225,7 +280,12 @@ def invoice_export_csv(request):
         'Status', 'Subtotal', 'Tax', 'Total', 'Is Sent'
     ])
     
-    invoices = Invoice.objects.filter(user=request.user)
+    invoices = (
+        Invoice.objects
+        .filter(user=request.user)
+        .select_related('client')
+        .only('invoice_number', 'date_issued', 'due_date', 'status', 'subtotal', 'tax_amount', 'total', 'is_sent', 'client__name')
+    )
     for invoice in invoices:
         writer.writerow([
             invoice.invoice_number,
@@ -233,9 +293,9 @@ def invoice_export_csv(request):
             invoice.date_issued,
             invoice.due_date,
             invoice.get_status_display(),
-            invoice.subtotal,
-            invoice.tax_amount,
-            invoice.total,
+            str(invoice.subtotal),
+            str(invoice.tax_amount),
+            str(invoice.total),
             'Yes' if invoice.is_sent else 'No'
         ])
     
@@ -255,3 +315,107 @@ def invoice_status_update(request, pk):
             messages.error(request, 'Invalid status')
     
     return redirect('invoice_detail', pk=pk)
+
+
+@login_required
+def api_invoice_list_view(request):
+    search = request.GET.get('search')
+    status = request.GET.get('status')
+    client_id = request.GET.get('client')
+    page_size = int(request.GET.get('page_size') or 20)
+    page_number = request.GET.get('page')
+
+    queryset = (
+        Invoice.objects
+        .filter(user=request.user)
+        .select_related('client')
+        .only('id', 'invoice_number', 'date_issued', 'due_date', 'status', 'total', 'client__name')
+    )
+
+    if search:
+        queryset = queryset.filter(
+            Q(invoice_number__icontains=search) |
+            Q(client__name__icontains=search) |
+            Q(client__email__icontains=search)
+        )
+    if status:
+        queryset = queryset.filter(status=status)
+    if client_id:
+        queryset = queryset.filter(client_id=client_id)
+
+    paginator = Paginator(queryset, page_size)
+    page_obj = paginator.get_page(page_number)
+
+    data = [
+        {
+            'id': inv.id,
+            'invoice_number': inv.invoice_number,
+            'client_name': inv.client.name,
+            'date_issued': inv.date_issued.isoformat(),
+            'due_date': inv.due_date.isoformat(),
+            'status': inv.status,
+            'total': str(inv.total),
+        }
+        for inv in page_obj
+    ]
+
+    return JsonResponse({
+        'results': data,
+        'page': page_obj.number,
+        'num_pages': paginator.num_pages,
+        'total': paginator.count,
+        'page_size': page_obj.paginator.per_page,
+    })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_invoice_create_view(request):
+    """
+    API endpoint for creating invoices with JSON data
+    """
+    try:
+        data = json.loads(request.body)
+        
+        # Get user (assuming authenticated user or provide user ID in data)
+        user = request.user if request.user.is_authenticated else get_user_model().objects.get(id=data.get('user_id'))
+        
+        # Get client
+        client = Client.objects.get(id=data.get('client_id'), user=user)
+        
+        # Create invoice
+        invoice = Invoice.objects.create(
+            user=user,
+            client=client,
+            date_issued=data.get('date_issued', timezone.now().date()),
+            due_date=data.get('due_date'),
+            tax_rate=data.get('tax_rate', 0),
+            notes=data.get('notes', ''),
+            terms=data.get('terms', ''),
+            status=data.get('status', 'draft')
+        )
+        
+        # Create invoice items
+        items_data = data.get('items', [])
+        for item_data in items_data:
+            InvoiceItem.objects.create(
+                invoice=invoice,
+                description=item_data.get('description'),
+                quantity=item_data.get('quantity', 1),
+                unit_price=item_data.get('unit_price', 0)
+            )
+        
+        # Calculate totals
+        invoice.calculate_totals()
+        invoice.save()
+        
+        return JsonResponse({
+            'success': True,
+            'invoice_id': invoice.id,
+            'invoice_number': invoice.invoice_number
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)

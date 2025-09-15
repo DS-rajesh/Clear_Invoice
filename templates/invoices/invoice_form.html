@@ -46,6 +46,9 @@
                                 {{ form.client.errors.0 }}
                             </div>
                         {% endif %}
+                        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            Select an existing client or <a href="{% url 'client_create' %}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">create a new one</a>
+                        </div>
                     </div>
 
                     <div>
@@ -159,7 +162,7 @@
                                         {% endif %}
                                     </td>
                                     <td class="py-3 pr-3">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">$0.00</div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white item-total">$0.00</div>
                                     </td>
                                     <td class="py-3">
                                         {% if form.DELETE %}
@@ -186,7 +189,7 @@
                             <span class="text-sm font-medium text-gray-900 dark:text-white" id="subtotal">$0.00</span>
                         </div>
                         <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Tax:</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Tax (<span id="tax-rate-display">0</span>%):</span>
                             <span class="text-sm font-medium text-gray-900 dark:text-white" id="tax">$0.00</span>
                         </div>
                         <div class="flex justify-between py-2">
@@ -283,23 +286,31 @@ function updateTotals() {
     const rows = document.querySelectorAll('.formset-row:not([style*="display: none"])');
     
     rows.forEach(row => {
-        const quantity = parseFloat(row.querySelector('input[name$="-quantity"]').value) || 0;
-        const unitPrice = parseFloat(row.querySelector('input[name$="-unit_price"]').value) || 0;
+        const quantityInput = row.querySelector('input[name$="-quantity"]');
+        const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+        const totalElement = row.querySelector('.item-total');
+        
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
         const total = quantity * unitPrice;
         
         // Update row total
-        const totalCell = row.querySelector('td:nth-child(4) div');
-        if (totalCell) {
-            totalCell.textContent = '$' + total.toFixed(2);
+        if (totalElement) {
+            totalElement.textContent = '$' + total.toFixed(2);
         }
         
         subtotal += total;
     });
     
-    const taxRate = parseFloat(document.querySelector('input[name="tax_rate"]').value) || 0;
+    const taxRateInput = document.querySelector('input[name="tax_rate"]');
+    const taxRate = parseFloat(taxRateInput.value) || 0;
     const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
     
+    // Update tax rate display
+    document.getElementById('tax-rate-display').textContent = taxRate.toFixed(2);
+    
+    // Update totals
     document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
     document.getElementById('tax').textContent = '$' + tax.toFixed(2);
     document.getElementById('total').textContent = '$' + total.toFixed(2);
