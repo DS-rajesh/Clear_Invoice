@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 import json
 from .models import Invoice, InvoiceItem
 from .forms import InvoiceForm, InvoiceItemFormSet, InvoiceSearchForm, EmailInvoiceForm
-from .utils import generate_pdf
+from .pdf_generator import generate_enhanced_pdf, generate_invoice_response
 from clients.models import Client
 import csv
 
@@ -191,7 +191,7 @@ def invoice_pdf_view(request, pk):
     pdf_content = cache.get(cache_key)
     try:
         if not pdf_content:
-            pdf_content = generate_pdf(invoice)
+            pdf_content = generate_enhanced_pdf(invoice)
             cache.set(cache_key, pdf_content, timeout=300)
         response = HttpResponse(pdf_content, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
@@ -208,8 +208,8 @@ def invoice_email_view(request, pk):
         form = EmailInvoiceForm(request.POST)
         if form.is_valid():
             try:
-                # Generate PDF
-                pdf_content = generate_pdf(invoice)
+                # Generate PDF using the new enhanced method
+                pdf_content = generate_enhanced_pdf(invoice)
                 
                 # Create email
                 email = EmailMessage(
@@ -376,18 +376,55 @@ def api_invoice_create_view(request):
     try:
         data = json.loads(request.body)
         
-        # Get user (assuming authenticated user or provide user ID in data)
-        user = request.user if request.user.is_authenticated else get_user_model().objects.get(id=data.get('user_id'))
+        # Validate required fields
+        required_fields = ['client_id', 'due_date']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }, status=400)
+        
+        # Get user (assuming authenticated user)
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=401)
+        
+        user = request.user
         
         # Get client
-        client = Client.objects.get(id=data.get('client_id'), user=user)
+        try:
+            client = Client.objects.get(id=data.get('client_id'), user=user)
+        except Client.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Client not found'
+            }, status=400)
+        
+        # Validate date fields
+        try:
+            from datetime import datetime
+            date_issued = data.get('date_issued')
+            if date_issued:
+                date_issued = datetime.strptime(date_issued, '%Y-%m-%d').date()
+            else:
+                date_issued = timezone.now().date()
+                
+            due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid date format. Use YYYY-MM-DD'
+            }, status=400)
         
         # Create invoice
         invoice = Invoice.objects.create(
             user=user,
             client=client,
-            date_issued=data.get('date_issued', timezone.now().date()),
-            due_date=data.get('due_date'),
+            date_issued=date_issued,
+            due_date=due_date,
             tax_rate=data.get('tax_rate', 0),
             notes=data.get('notes', ''),
             terms=data.get('terms', ''),
@@ -396,13 +433,28 @@ def api_invoice_create_view(request):
         
         # Create invoice items
         items_data = data.get('items', [])
+        if not items_data:
+            return JsonResponse({
+                'success': False,
+                'error': 'At least one invoice item is required'
+            }, status=400)
+            
+        created_items = []
         for item_data in items_data:
-            InvoiceItem.objects.create(
+            # Validate required item fields
+            if not item_data.get('description') or not item_data.get('unit_price'):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Each item must have description and unit_price'
+                }, status=400)
+                
+            item = InvoiceItem.objects.create(
                 invoice=invoice,
                 description=item_data.get('description'),
                 quantity=item_data.get('quantity', 1),
                 unit_price=item_data.get('unit_price', 0)
             )
+            created_items.append(item)
         
         # Calculate totals
         invoice.calculate_totals()
@@ -411,11 +463,17 @@ def api_invoice_create_view(request):
         return JsonResponse({
             'success': True,
             'invoice_id': invoice.id,
-            'invoice_number': invoice.invoice_number
+            'invoice_number': invoice.invoice_number,
+            'message': f'Invoice {invoice.invoice_number} created successfully!'
         })
         
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
     except Exception as e:
         return JsonResponse({
             'success': False,
             'error': str(e)
-        }, status=400)
+        }, status=500)

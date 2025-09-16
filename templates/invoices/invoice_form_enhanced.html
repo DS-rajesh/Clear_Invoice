@@ -28,14 +28,14 @@
         {% csrf_token %}
         
         <!-- Invoice Header Card -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-xl mb-6 transition-all duration-300 hover:shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Invoice Details</h3>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="sm:col-span-2">
-                        <label for="{{ form.client.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.client.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Client <span class="text-red-500">*</span>
                         </label>
                         <div class="mt-1 relative">
@@ -50,12 +50,12 @@
                             </div>
                         {% endif %}
                         <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            Select an existing client or <a href="{% url 'client_create' %}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">create a new one</a>
+                            Select an existing client or <a href="{% url 'client_create' %}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium underline">create a new one</a>
                         </div>
                     </div>
 
                     <div>
-                        <label for="{{ form.date_issued.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.date_issued.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Date Issued <span class="text-red-500">*</span>
                         </label>
                         <div class="mt-1 relative">
@@ -72,7 +72,7 @@
                     </div>
 
                     <div>
-                        <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Due Date <span class="text-red-500">*</span>
                         </label>
                         <div class="mt-1 relative">
@@ -91,7 +91,7 @@
 
                 <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
-                        <label for="{{ form.tax_rate.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.tax_rate.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Tax Rate (%)
                         </label>
                         <div class="mt-1 relative">
@@ -108,7 +108,7 @@
                     </div>
 
                     <div>
-                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Status
                         </label>
                         <div class="mt-1">
@@ -125,15 +125,15 @@
         </div>
 
         <!-- Invoice Items Card -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-xl mb-6 transition-all duration-300 hover:shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">Invoice Items</h3>
                     <div class="flex space-x-2">
-                        <button type="button" id="product-lookup-btn" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button type="button" id="product-lookup-btn" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
                             <i class="fas fa-search mr-2"></i>Lookup
                         </button>
-                        <button type="button" id="add-item-btn" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button type="button" id="add-item-btn" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i>Add Item
                         </button>
                     </div>
@@ -142,20 +142,20 @@
             <div class="p-6">
                 {{ formset.management_form }}
                 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead>
+                        <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Quantity</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Unit Price</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Total</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Action</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Quantity</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Unit Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Total</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-16">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="formset-container" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody id="formset-container" class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                             {% for form in formset %}
-                                <tr class="formset-row">
+                                <tr class="formset-row hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         {{ form.description }}
                                         {% if form.description.errors %}
@@ -187,8 +187,8 @@
                                         {% if form.DELETE %}
                                             {{ form.DELETE }}
                                         {% endif %}
-                                        <button type="button" onclick="removeRow(this)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 remove-item-btn">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="button" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 remove-item-btn transition-colors duration-200" title="Remove item">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </td>
                                     {% for hidden in form.hidden_fields %}
@@ -201,21 +201,21 @@
                 </div>
 
                 <!-- Totals Summary -->
-                <div class="mt-8 bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                <div class="mt-8 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-6 shadow-inner">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="lg:col-start-3 lg:col-span-2">
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="subtotal">$0.00</span>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                                    <span class="text-base font-medium text-gray-700 dark:text-gray-300">Subtotal:</span>
+                                    <span class="text-base font-semibold text-gray-900 dark:text-white" id="subtotal">$0.00</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600 dark:text-gray-300">Tax (<span id="tax-rate-display">0</span>%):</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="tax">$0.00</span>
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                                    <span class="text-base font-medium text-gray-700 dark:text-gray-300">Tax (<span id="tax-rate-display">0</span>%):</span>
+                                    <span class="text-base font-semibold text-gray-900 dark:text-white" id="tax">$0.00</span>
                                 </div>
-                                <div class="flex justify-between pt-3 border-t border-gray-200 dark:border-gray-600">
-                                    <span class="text-lg font-medium text-gray-900 dark:text-white">Total:</span>
-                                    <span class="text-lg font-bold text-gray-900 dark:text-white" id="total">$0.00</span>
+                                <div class="flex justify-between items-center pt-4">
+                                    <span class="text-xl font-bold text-gray-900 dark:text-white">Total:</span>
+                                    <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="total">$0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -225,14 +225,14 @@
         </div>
 
         <!-- Notes and Terms Card -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-xl mb-6 transition-all duration-300 hover:shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Additional Information</h3>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Notes
                         </label>
                         <div class="mt-1">
@@ -246,7 +246,7 @@
                     </div>
 
                     <div>
-                        <label for="{{ form.terms.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="{{ form.terms.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Terms & Conditions
                         </label>
                         <div class="mt-1">
@@ -263,17 +263,17 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col sm:flex-row items-center justify-end space-y-4 sm:space-y-0 sm:space-x-3">
-            <a href="{% url 'invoice_list' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+        <div class="flex flex-col sm:flex-row items-center justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{% url 'invoice_list' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-times mr-2"></i>Cancel
             </a>
-            <button type="submit" name="action" value="save" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button type="submit" name="action" value="save" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-md hover:shadow-lg">
                 <i class="fas fa-save mr-2"></i>Save Invoice
             </button>
-            <button type="submit" name="action" value="generate_pdf" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            <button type="submit" name="action" value="generate_pdf" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-md hover:shadow-lg">
                 <i class="fas fa-file-pdf mr-2"></i>Generate PDF
             </button>
-            <button type="submit" name="action" value="send_email" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+            <button type="submit" name="action" value="send_email" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-md hover:shadow-lg">
                 <i class="fas fa-envelope mr-2"></i>Send via Email
             </button>
         </div>
@@ -284,7 +284,12 @@
 {% block extra_js %}
 <script>
 // Keep track of the formset index
-let formsetIndex = document.getElementById('id_items-TOTAL_FORMS').value;
+let formsetIndex = parseInt(document.getElementById('id_items-TOTAL_FORMS').value);
+
+// Function to format currency
+function formatCurrency(amount) {
+    return '$' + parseFloat(amount).toFixed(2);
+}
 
 // Function to add a new formset item
 document.getElementById('add-item-btn').addEventListener('click', function() {
@@ -292,24 +297,24 @@ document.getElementById('add-item-btn').addEventListener('click', function() {
     
     // Create a new row
     const newRow = document.createElement('tr');
-    newRow.className = 'formset-row';
+    newRow.className = 'formset-row hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150';
     newRow.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap">
-            <input type="text" name="items-${formsetIndex}-description" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Item description">
+            <input type="text" name="items-${formsetIndex}-description" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white" placeholder="Item description">
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-            <input type="number" name="items-${formsetIndex}-quantity" value="1" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Quantity">
+            <input type="number" name="items-${formsetIndex}-quantity" value="1" step="0.01" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white quantity-input" placeholder="Quantity">
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-            <input type="number" name="items-${formsetIndex}-unit_price" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Unit price">
+            <input type="number" name="items-${formsetIndex}-unit_price" step="0.01" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white price-input" placeholder="Unit price">
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
             <div class="text-sm font-medium text-gray-900 dark:text-white item-total">$0.00</div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
             <input type="checkbox" name="items-${formsetIndex}-DELETE" id="id_items-${formsetIndex}-DELETE" style="display: none;">
-            <button type="button" onclick="removeRow(this)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 remove-item-btn">
-                <i class="fas fa-trash"></i>
+            <button type="button" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 remove-item-btn transition-colors duration-200" title="Remove item">
+                <i class="fas fa-trash-alt"></i>
             </button>
             <input type="hidden" name="items-${formsetIndex}-id" id="id_items-${formsetIndex}-id">
         </td>
@@ -324,9 +329,16 @@ document.getElementById('add-item-btn').addEventListener('click', function() {
     formsetIndex = parseInt(formsetIndex) + 1;
     
     // Add event listeners to the new inputs
-    const newInputs = newRow.querySelectorAll('input[name$="-quantity"], input[name$="-unit_price"]');
-    newInputs.forEach(input => {
-        input.addEventListener('input', updateTotals);
+    const quantityInput = newRow.querySelector('.quantity-input');
+    const priceInput = newRow.querySelector('.price-input');
+    
+    quantityInput.addEventListener('input', updateTotals);
+    priceInput.addEventListener('input', updateTotals);
+    
+    // Add event listener to the new remove button
+    const removeButton = newRow.querySelector('.remove-item-btn');
+    removeButton.addEventListener('click', function() {
+        removeRow(this);
     });
     
     // Update totals
@@ -337,7 +349,7 @@ document.getElementById('add-item-btn').addEventListener('click', function() {
 document.getElementById('product-lookup-btn').addEventListener('click', function() {
     const query = prompt('Enter product/service name to search:');
     if (query) {
-        fetch(`/invoices/api/products/lookup/?q=${encodeURIComponent(query)}`)
+        fetch(`/api/products/lookup/?q=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.products && data.products.length > 0) {
@@ -360,24 +372,24 @@ function addProductToInvoice(product) {
     
     // Create a new row
     const newRow = document.createElement('tr');
-    newRow.className = 'formset-row';
+    newRow.className = 'formset-row hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150';
     newRow.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap">
-            <input type="text" name="items-${formsetIndex}-description" value="${product.name}" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <input type="text" name="items-${formsetIndex}-description" value="${product.name}" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-            <input type="number" name="items-${formsetIndex}-quantity" value="1" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <input type="number" name="items-${formsetIndex}-quantity" value="1" step="0.01" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white quantity-input">
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-            <input type="number" name="items-${formsetIndex}-unit_price" value="${product.unit_price}" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <input type="number" name="items-${formsetIndex}-unit_price" value="${product.unit_price}" step="0.01" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white price-input">
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-            <div class="text-sm font-medium text-gray-900 dark:text-white item-total">$${(product.unit_price).toFixed(2)}</div>
+            <div class="text-sm font-medium text-gray-900 dark:text-white item-total">${formatCurrency(product.unit_price)}</div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
             <input type="checkbox" name="items-${formsetIndex}-DELETE" id="id_items-${formsetIndex}-DELETE" style="display: none;">
-            <button type="button" onclick="removeRow(this)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 remove-item-btn">
-                <i class="fas fa-trash"></i>
+            <button type="button" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 remove-item-btn transition-colors duration-200" title="Remove item">
+                <i class="fas fa-trash-alt"></i>
             </button>
             <input type="hidden" name="items-${formsetIndex}-id" id="id_items-${formsetIndex}-id">
         </td>
@@ -392,9 +404,16 @@ function addProductToInvoice(product) {
     formsetIndex = parseInt(formsetIndex) + 1;
     
     // Add event listeners to the new inputs
-    const newInputs = newRow.querySelectorAll('input[name$="-quantity"], input[name$="-unit_price"]');
-    newInputs.forEach(input => {
-        input.addEventListener('input', updateTotals);
+    const quantityInput = newRow.querySelector('.quantity-input');
+    const priceInput = newRow.querySelector('.price-input');
+    
+    quantityInput.addEventListener('input', updateTotals);
+    priceInput.addEventListener('input', updateTotals);
+    
+    // Add event listener to the new remove button
+    const removeButton = newRow.querySelector('.remove-item-btn');
+    removeButton.addEventListener('click', function() {
+        removeRow(this);
     });
     
     // Update totals
@@ -428,7 +447,7 @@ function updateTotals() {
             const total = quantity * unitPrice;
             
             // Update row total
-            totalElement.textContent = '$' + total.toFixed(2);
+            totalElement.textContent = formatCurrency(total);
             
             subtotal += total;
         }
@@ -446,9 +465,9 @@ function updateTotals() {
     const total = subtotal + tax;
     
     // Update summary totals
-    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
-    document.getElementById('total').textContent = '$' + total.toFixed(2);
+    document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+    document.getElementById('tax').textContent = formatCurrency(tax);
+    document.getElementById('total').textContent = formatCurrency(total);
 }
 
 // Add event listeners for real-time calculation

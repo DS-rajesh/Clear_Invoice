@@ -6,7 +6,7 @@ Pillow
 python-decouple
 django-extensions
 reportlab
-weasyprint
+pdfkit
 whitenoise
 django-debug-toolbar
 redis
